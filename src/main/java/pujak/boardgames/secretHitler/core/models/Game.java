@@ -2,36 +2,43 @@ package pujak.boardgames.secretHitler.core.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import com.google.common.primitives.UnsignedLong;
+import com.google.common.primitives.UnsignedInteger;
 
 import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
-import pujak.boardgames.secretHitler.core.Services.ArticlesProvider;
-import pujak.boardgames.secretHitler.core.Services.ElectionManager;
-import pujak.boardgames.secretHitler.core.Services.MessageSender;
+import pujak.boardgames.secretHitler.core.services.ArticlesProvider;
+import pujak.boardgames.secretHitler.core.services.ElectionManager;
+import pujak.boardgames.secretHitler.core.services.MessageSender;
+import pujak.boardgames.secretHitler.core.events.EventFactory;
 import pujak.boardgames.secretHitler.core.events.GameEvent;
 
 public class Game implements Delegatable {
     private Table table;
     private ArrayList<Player> players;
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
     private MessageSender messageSender;
     private ElectionManager electionManager;
     private ArticlesProvider articlesProvider;
+    private boolean isGameOver;
+    private GameResult gameResult;
 
     public Game(ArrayList<Player> players,
             MessageSender messageSender,
             ElectionManager electionManager,
-            ArticlesProvider articlesProvider) {
+            ArticlesProvider articlesProvider,
+            EventFactory eventFactory) {
 
+        this.isGameOver = false;
         this.messageSender = messageSender;
         this.electionManager = electionManager;
         this.articlesProvider = articlesProvider;
-        table = new Table();
+        table = new Table(this);
         this.players = players;
     }
     
@@ -42,16 +49,11 @@ public class Game implements Delegatable {
                     String.format("Players count not correct, you need minum %2d players, and less then %2d",
                             gameRules.minPlayersToStart(), gameRules.maxPlayersToStart()));
 
-        var isGameOver = false;
-
         while (!isGameOver) {
-            //todo: 
-            //Add here gameover check
-
             //stage start
             table.setPresident(players);
 
-            var ids = ((ArrayList<UnsignedLong>) players.stream().map(Player::getId).collect(Collectors.toList()));
+            var ids = ((ArrayList<UnsignedInteger>) players.stream().map(Player::getId).collect(Collectors.toList()));
             messageSender.sendMessageToMany(ids, table.getTableInfo());
 
             //send to president chancellor candidates
@@ -63,20 +65,9 @@ public class Game implements Delegatable {
             //start Chancellor election
             var variants = new ArrayList<String>(Arrays.asList("Ja", "Nien"));
             var votingResults = electionManager.getVotes(getActivePlayers(players), variants, "Vote for Chancellor");//add here candidate name
-            //manage votes
-            //todo: extract method
-            var yes = 0;
-            var no = 0;
 
-            for (String item : votingResults) {
-                if (item == "Ja")
-                    yes++;
-                if (item == "Nien")
-                    no++;
-            }
-
-            if (yes <= no) {
-                table.setElectionTracker(table.getElectionTracker() + 1 );
+            if (!isElectionSucceed(votingResults)) {
+                table.setElectionTracker(table.getElectionTracker() + 1);
                 continue;
             }
 
@@ -120,7 +111,26 @@ public class Game implements Delegatable {
         }
     }
 
-    
+    private boolean isElectionSucceed(ArrayList<String> votingResults) {
+        var yes = 0;
+        var no = 0;
+
+        for (String item : votingResults) {
+            if (item == "Ja")
+                yes++;
+            if (item == "Nien")
+                no++;
+        }
+
+        if (yes <= no) {
+            return false;
+        }
+        return true;
+    }
+
+    public GameResult getGameResult() {
+        return gameResult;
+    }
 
     private static ArrayList<Player> getActivePlayers(ArrayList<Player> players) {
         return ((ArrayList<Player>) players.stream().filter(user -> !user.isDead())
@@ -151,8 +161,8 @@ public class Game implements Delegatable {
         return resArr;
     }
     
-    private static Map<UnsignedLong, String> getElectionPull(ArrayList<Player> candidates) {
-        var res = new HashMap<UnsignedLong, String>();
+    private static Map<UnsignedInteger, String> getElectionPull(ArrayList<Player> candidates) {
+        var res = new HashMap<UnsignedInteger, String>();
 
         for (Player player : candidates) {
             res.put(player.getId(), player.getName());
@@ -162,11 +172,12 @@ public class Game implements Delegatable {
     }
 
     private void endGame() {
-        
+        this.isGameOver = true;
     }
 
     @Override
     public void Execute(GameResult e) {
+        gameResult = e;
         endGame();
     }
 }

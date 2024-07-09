@@ -45,10 +45,6 @@ public class Table {
         return liberalActiveArticels;
     }
 
-    public void setActiveArticles(ArrayList<Article> activeArticles) {
-        this.activeArticles = activeArticles;
-    }
-
     private Player president;
     public Player getPresident() {
         return president;
@@ -102,8 +98,14 @@ public class Table {
         this.electionTracker = electionTracker;
     }
 
-    public Table() {
+    private Game game;
 
+    public Game getGame() {
+        return game;
+    }
+
+    public Table(Game game) {
+        this.game = game;
     }
     
     public ArrayList<GameEvent> getExecutableEvents() {

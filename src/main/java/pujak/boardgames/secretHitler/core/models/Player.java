@@ -1,10 +1,16 @@
 package pujak.boardgames.secretHitler.core.models;
 
-import com.google.common.primitives.UnsignedLong;
+import com.google.common.primitives.UnsignedInteger;
 
 public class Player {
-    private UnsignedLong id;
-    public UnsignedLong getId() {
+    private static UnsignedInteger idCounter; 
+
+    public static UnsignedInteger getIdCounter() {
+        return idCounter;
+    }
+
+    private UnsignedInteger id;
+    public UnsignedInteger getId() {
         return id;
     }
     private Role role;
@@ -19,7 +25,13 @@ public class Player {
     public boolean isDead() {
         return isDead;
     }
+
     public void setDead(boolean isDead) {
         this.isDead = isDead;
+    }
+    
+    public Player(Role role) {
+        this.role = role;
+        this.id = idCounter.plus(UnsignedInteger.ONE);
     }
 }

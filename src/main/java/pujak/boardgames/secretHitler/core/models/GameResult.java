@@ -1,5 +1,8 @@
 package pujak.boardgames.secretHitler.core.models;
 
-public class GameResult {
-    
-}
+import java.util.ArrayList;
+import java.util.UUID;
+
+import pujak.boardgames.secretHitler.core.models.Enums.Party;
+
+public record GameResult(ArrayList<Player> getWinners, ArrayList<Player> getAllPlayers, Party getWinnerParty, UUID gameId) {} 

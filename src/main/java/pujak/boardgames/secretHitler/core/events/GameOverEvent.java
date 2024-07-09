@@ -1,17 +1,32 @@
 package pujak.boardgames.secretHitler.core.events;
 
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.UUID;
+
 import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
+import pujak.boardgames.secretHitler.core.models.GameResult;
+import pujak.boardgames.secretHitler.core.models.Player;
 import pujak.boardgames.secretHitler.core.models.Table;
+import pujak.boardgames.secretHitler.core.models.Enums.Party;
 import pujak.boardgames.secretHitler.core.models.Enums.ResponsibilityType;
 
 public class GameOverEvent implements GameEvent {
 
     private Table table;
+    private Party winnerParty;
 
     @Override
     public void Execute(Delegatable delegatable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'Execute'");
+        var winners = new ArrayList<Player>();
+
+        for (Player player : table.getGame().getPlayers()) {
+            if (player.getRole().getParty() == winnerParty) {
+                winners.add(player);
+            }
+        }
+
+        delegatable.Execute(new GameResult(winners, table.getGame().getPlayers(), winnerParty, UUID.randomUUID()));
     }
 
     @Override
@@ -20,10 +35,20 @@ public class GameOverEvent implements GameEvent {
         
         if (table.getFascistActiveArticles().size() >= 3
                 && table.getChancellor().getRole().getResponsibilityType() == ResponsibilityType.Fascist) {
+            this.winnerParty = Party.Fascist;
             return true;
         }
         var gameRules = table.getGameRules();
-        if ()
+
+        if (table.getFascistActiveArticles().size() == gameRules.fascistWinArticlesCount()) {
+            this.winnerParty = Party.Fascist;
+            return true;
+        }
+
+        if (table.getLiberalActiveArticels().size() == gameRules.liberalWinArticlesCount()) {
+            this.winnerParty = Party.Liberal;
+            return true;
+        }
 
         return false;
     }
