@@ -1,6 +1,5 @@
 package pujak.boardgames.secretHitler.core.events;
 
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -45,7 +44,7 @@ public class GameOverEvent implements GameEvent {
             return true;
         }
 
-        if (table.getLiberalActiveArticels().size() == gameRules.liberalWinArticlesCount()) {
+        if (table.getLiberalActiveArticles().size() == gameRules.liberalWinArticlesCount()) {
             this.winnerParty = Party.Liberal;
             return true;
         }

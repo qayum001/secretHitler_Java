@@ -1,12 +1,7 @@
 package pujak.boardgames.secretHitler.core.models;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import com.google.common.primitives.UnsignedInteger;
 
 import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
 import pujak.boardgames.secretHitler.core.services.ArticlesProvider;
@@ -16,15 +11,15 @@ import pujak.boardgames.secretHitler.core.events.EventFactory;
 import pujak.boardgames.secretHitler.core.events.GameEvent;
 
 public class Game implements Delegatable {
-    private Table table;
-    private ArrayList<Player> players;
+    private final Table table;
+    private final ArrayList<Player> players;
     public ArrayList<Player> getPlayers() {
         return players;
     }
 
-    private MessageSender messageSender;
-    private ElectionManager electionManager;
-    private ArticlesProvider articlesProvider;
+    private final MessageSender messageSender;
+    private final ElectionManager electionManager;
+    private final ArticlesProvider articlesProvider;
     private boolean isGameOver;
     private GameResult gameResult;
 
@@ -38,32 +33,44 @@ public class Game implements Delegatable {
         this.messageSender = messageSender;
         this.electionManager = electionManager;
         this.articlesProvider = articlesProvider;
-        table = new Table(this);
+        table = new Table(this, eventFactory);
         this.players = players;
     }
     
     public void Start(GameRules gameRules) {
 
+        System.out.println("Players in game: ");
+        for (var player: players){
+            System.out.println(player.getId() + " " + player.getName());
+        }
+
         if (!isPlayersCountCorrect(players, gameRules))
             throw new RuntimeException(
-                    String.format("Players count not correct, you need minum %2d players, and less then %2d",
+                    String.format("Players count not correct, you need minimum %2d players, and less then %2d",
                             gameRules.minPlayersToStart(), gameRules.maxPlayersToStart()));
+
+        table.fillDrawPile(gameRules);
 
         while (!isGameOver) {
             //stage start
             table.setPresident(players);
+            System.out.println("president has been chosen");
 
-            var ids = ((ArrayList<UnsignedInteger>) players.stream().map(Player::getId).collect(Collectors.toList()));
+
+            var ids =  players.stream().map(Player::getId).collect(Collectors.toList());
+            System.out.println(ids);
             messageSender.sendMessageToMany(ids, table.getTableInfo());
 
             //send to president chancellor candidates
-            var candidates = generateCandidatePull(table.getPresident(), table.getPreviousChancellor(), players);
+            var candidates = generateCandidatePull(table.getPresident(), table.getPreviousChancellor(), getActivePlayers(players));
             var electionData = getElectionPull(candidates);
 
             var candidate = electionManager.getChosenCandidate(table.getPresident().getId(), electionData);
 
+            System.out.println(candidate);
+
             //start Chancellor election
-            var variants = new ArrayList<String>(Arrays.asList("Ja", "Nien"));
+            var variants = new ArrayList<>(Arrays.asList("Ja", "Nien"));
             var votingResults = electionManager.getVotes(getActivePlayers(players), variants, "Vote for Chancellor");//add here candidate name
 
             if (!isElectionSucceed(votingResults)) {
@@ -71,8 +78,13 @@ public class Game implements Delegatable {
                 continue;
             }
 
-            table.setChancellor(
-                    getActivePlayers(players).stream().filter(e -> e.getId() == candidate).findFirst().get());
+            System.out.println("Players before choosing Chancellor: ");
+            for (var player: players){
+                System.out.println(player.getId() + " " + player.getName());
+            }
+
+            var getChancellor = players.stream().filter(e -> e.getId().equals(candidate)).findFirst().get();
+            table.setChancellor(getChancellor);
 
             // send table info and 3 articles to president
             messageSender.sendMessageToMany(ids, table.getTableInfo());
@@ -81,18 +93,18 @@ public class Game implements Delegatable {
             var presidentDiscardArticle = articlesProvider.getDiscardArticle(sendingArticles,
                     "Choose article to discard", table.getPresident().getId());
 
-            var discartingArticle = sendingArticles.stream().filter(e -> e.getId() == presidentDiscardArticle)
+            var discartingArticle = sendingArticles.stream().filter(e -> e.getId().equals(presidentDiscardArticle))
                     .findFirst().get();
             table.discardArticle(discartingArticle);
 
-            //send here message to President that his next message will be send to other players and he must write what cards he got
+            //send here message to President that his next message will be sent to other players, and he must write what cards he got
 
             sendingArticles.remove(discartingArticle);
 
             var chancellorDiscardArticle = articlesProvider.getDiscardArticle(sendingArticles,
-                    "Choose article to discard", table.getPresident().getId());
+                    "Choose article to discard", table.getChancellor().getId());
 
-            discartingArticle = sendingArticles.stream().filter(e -> e.getId() == chancellorDiscardArticle)
+            discartingArticle = sendingArticles.stream().filter(e -> e.getId().equals(chancellorDiscardArticle))
                     .findFirst().get();
             table.discardArticle(discartingArticle);
 
@@ -116,25 +128,22 @@ public class Game implements Delegatable {
         var no = 0;
 
         for (String item : votingResults) {
-            if (item == "Ja")
+            if (Objects.equals(item, "Ja"))
                 yes++;
-            if (item == "Nien")
+            if (Objects.equals(item, "Nien"))
                 no++;
         }
 
-        if (yes <= no) {
-            return false;
-        }
-        return true;
+        return yes > no;
     }
 
     public GameResult getGameResult() {
         return gameResult;
     }
 
-    private static ArrayList<Player> getActivePlayers(ArrayList<Player> players) {
-        return ((ArrayList<Player>) players.stream().filter(user -> !user.isDead())
-        .collect(Collectors.toList()));
+    private static List<Player> getActivePlayers(ArrayList<Player> players) {
+        return players.stream().filter(user -> !user.isDead())
+        .collect(Collectors.toList());
     }
 
     private static boolean isPlayersCountCorrect(ArrayList<Player> players, GameRules gameRules) {
@@ -142,27 +151,32 @@ public class Game implements Delegatable {
             return false;
 
         var count = players.size();
-        if (count >= gameRules.minPlayersToStart() || count <= gameRules.maxPlayersToStart())
-            return true;
-
-        return false;
+        return count >= gameRules.minPlayersToStart() || count <= gameRules.maxPlayersToStart();
     }
     
     private static ArrayList<Player> generateCandidatePull(Player president, Player previousChancellor,
-            ArrayList<Player> players) {
+            List<Player> players) {
         var resArr = new ArrayList<Player>();
 
-        for (var item : players) {
-            if (item.isDead() || item.getId() == president.getId() || item.getId() == previousChancellor.getId())
-                continue;
-            resArr.add(item);
+        var isTherePreviousChancellor = previousChancellor != null;
+        if (isTherePreviousChancellor){
+            for (var item : players) {
+                if (item.isDead() || item.getId() == president.getId() || item.getId() == previousChancellor.getId())
+                    continue;
+                resArr.add(item);
+            }
+        }else {
+            for (var item : players) {
+                if (item.isDead() || item.getId() == president.getId())
+                    continue;
+                resArr.add(item);
+            }
         }
-
         return resArr;
     }
     
-    private static Map<UnsignedInteger, String> getElectionPull(ArrayList<Player> candidates) {
-        var res = new HashMap<UnsignedInteger, String>();
+    private static Map<UUID, String> getElectionPull(ArrayList<Player> candidates) {
+        var res = new HashMap<UUID, String>();
 
         for (Player player : candidates) {
             res.put(player.getId(), player.getName());

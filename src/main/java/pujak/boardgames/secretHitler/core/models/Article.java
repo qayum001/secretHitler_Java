@@ -2,21 +2,22 @@ package pujak.boardgames.secretHitler.core.models;
 
 import pujak.boardgames.secretHitler.core.models.Enums.ArticleType;
 
-public class Article {
-    private static int counter;
-    private ArticleType type;
-    private int id;
+import java.util.UUID;
 
-    public int getId() {
+public class Article {
+    private final ArticleType type;
+    private final UUID id;
+
+    public UUID getId() {
         return id;
     }
 
-        public ArticleType getType() {
+    public ArticleType getType() {
         return type;
     }
 
-    public Article(String name, ArticleType type) {
-        id = counter++;
+    public Article(ArticleType type) {
+        id = UUID.randomUUID();
         this.type = type;
     }
 }

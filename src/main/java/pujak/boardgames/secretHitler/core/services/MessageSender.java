@@ -1,17 +1,16 @@
 package pujak.boardgames.secretHitler.core.services;
 
-import java.util.ArrayList;
-import java.util.Dictionary;
+import java.util.*;
 
 import com.google.common.primitives.UnsignedInteger;
 
 public interface MessageSender {
-    void sendMessage(UnsignedInteger recieverId, String message);
+    void sendMessage(UUID receiverId, String message);
     
-    void sendMessageToMany(ArrayList<UnsignedInteger> reciecerIds, String message);
+    void sendMessageToMany(List<UUID> receiverIds, String message);
 
-    String getChoose(UnsignedInteger reciecerId, String message, Dictionary<String, String> variants);
+    String getChoose(UUID receiverId, String message, Map<String, String> variants);
 
-    ArrayList<String> getChooseFromMany(ArrayList<UnsignedInteger> reciecerIds, String message,
-            Dictionary<String, String> variants);
+    ArrayList<String> getChooseFromMany(ArrayList<UUID> receiverId, String message,
+            Map<String, String> variants);
 }

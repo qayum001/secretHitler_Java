@@ -28,6 +28,7 @@ public class Room {
     }
 
     public void start() {
+        System.out.println("room started");
         game.Start(gameRules);
     }
 

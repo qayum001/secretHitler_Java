@@ -4,13 +4,17 @@ import java.util.ArrayList;
 
 public class EventFactory {
 
-    private ArrayList<GameEvent> registredGameEvents;
+    private final ArrayList<GameEvent> registeredGameEvents;
 
-    public ArrayList<GameEvent> getRegistredGameEvents() {
-        return registredGameEvents;
+    public EventFactory() {
+        this.registeredGameEvents = new ArrayList<GameEvent>();
+    }
+
+    public ArrayList<GameEvent> getRegisteredGameEvents() {
+        return registeredGameEvents;
     }
 
     public void Register(GameEvent event) {
-        
+        registeredGameEvents.add(event);
     }
 }
