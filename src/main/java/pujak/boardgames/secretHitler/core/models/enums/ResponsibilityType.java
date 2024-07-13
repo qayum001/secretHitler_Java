@@ -1,4 +1,4 @@
-package pujak.boardgames.secretHitler.core.models.Enums;
+package pujak.boardgames.secretHitler.core.models.enums;
 
 public enum ResponsibilityType {
     Liberal,

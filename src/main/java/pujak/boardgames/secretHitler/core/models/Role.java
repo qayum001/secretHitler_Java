@@ -1,7 +1,7 @@
 package pujak.boardgames.secretHitler.core.models;
 
-import pujak.boardgames.secretHitler.core.models.Enums.Party;
-import pujak.boardgames.secretHitler.core.models.Enums.ResponsibilityType;
+import pujak.boardgames.secretHitler.core.models.enums.Party;
+import pujak.boardgames.secretHitler.core.models.enums.ResponsibilityType;
 
 public class Role {
 

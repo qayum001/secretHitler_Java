@@ -1,6 +1,6 @@
 package pujak.boardgames.secretHitler.core.models;
 
-import pujak.boardgames.secretHitler.core.models.Enums.ArticleType;
+import pujak.boardgames.secretHitler.core.models.enums.ArticleType;
 
 import java.util.UUID;
 
