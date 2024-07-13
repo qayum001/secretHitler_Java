@@ -1,6 +1,7 @@
 package pujak.boardgames.secretHitler.core.events;
 
 import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
+import pujak.boardgames.secretHitler.core.events.enums.GameType;
 import pujak.boardgames.secretHitler.core.models.Player;
 import pujak.boardgames.secretHitler.core.models.Table;
 import pujak.boardgames.secretHitler.core.services.MessageSender;

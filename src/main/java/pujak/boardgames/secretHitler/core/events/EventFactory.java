@@ -1,6 +1,10 @@
 package pujak.boardgames.secretHitler.core.events;
 
+import pujak.boardgames.secretHitler.core.events.enums.GameType;
+import pujak.boardgames.secretHitler.core.models.Player;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class EventFactory {
 
@@ -14,7 +18,7 @@ public class EventFactory {
         return registeredGameEvents;
     }
 
-    public void Register(GameEvent event) {
+    public void register(GameEvent event) {
         registeredGameEvents.add(event);
     }
 }

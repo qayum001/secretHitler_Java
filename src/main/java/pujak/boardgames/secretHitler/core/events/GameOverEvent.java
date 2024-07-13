@@ -4,16 +4,23 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
+import pujak.boardgames.secretHitler.core.events.enums.GameType;
 import pujak.boardgames.secretHitler.core.models.GameResult;
 import pujak.boardgames.secretHitler.core.models.Player;
 import pujak.boardgames.secretHitler.core.models.Table;
-import pujak.boardgames.secretHitler.core.models.Enums.Party;
-import pujak.boardgames.secretHitler.core.models.Enums.ResponsibilityType;
+import pujak.boardgames.secretHitler.core.models.enums.Party;
+import pujak.boardgames.secretHitler.core.models.enums.ResponsibilityType;
+import pujak.boardgames.secretHitler.core.services.MessageSender;
 
 public class GameOverEvent implements GameEvent {
 
     private Table table;
     private Party winnerParty;
+    private final MessageSender messageSender;
+
+    public GameOverEvent (MessageSender messageSender){
+        this.messageSender = messageSender;
+    }
 
     @Override
     public void Execute(Delegatable delegatable) {
@@ -24,6 +31,8 @@ public class GameOverEvent implements GameEvent {
                 winners.add(player);
             }
         }
+
+        //TODO: send message to players about game over;
 
         delegatable.Execute(new GameResult(winners, table.getGame().getPlayers(), winnerParty, UUID.randomUUID()));
     }

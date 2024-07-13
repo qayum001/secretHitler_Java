@@ -3,12 +3,11 @@ package pujak.boardgames.secretHitler.core.models;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import pujak.boardgames.secretHitler.core.events.EventFactory;
 import pujak.boardgames.secretHitler.core.events.GameEvent;
-import pujak.boardgames.secretHitler.core.models.Enums.ArticleType;
+import pujak.boardgames.secretHitler.core.models.enums.ArticleType;
 
 public class Table {
     private GameRules gameRules;
@@ -50,9 +49,6 @@ public class Table {
         return president;
     }
 
-    public void setPresident(Player president) {
-        this.president = president;
-    }
 
     private Player chancellor;
     public Player getChancellor() {
@@ -176,6 +172,7 @@ public class Table {
     }
 
     public void addArticleToActives(Article article) {
+        electionTracker = 0;
         switch (article.getType()) {
             case ArticleType.Blue:
                 liberalActiveArticles.add(article);

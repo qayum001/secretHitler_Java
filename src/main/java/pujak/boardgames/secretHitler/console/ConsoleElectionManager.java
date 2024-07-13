@@ -24,7 +24,7 @@ public class ConsoleElectionManager implements ElectionManager {
 
         var in = new Scanner(System.in);
         for (var voter: voters){
-            System.out.println(voter.getId() + " " + voter.getName());
+            System.out.println(voter.getId() + " " + voter.getName() + " idDead: " + voter.isDead());
             while(true){
                 for (var variant: variants){
                     System.out.print(variant + " ");

@@ -8,9 +8,10 @@ import pujak.boardgames.secretHitler.core.services.MessageSender;
 import pujak.boardgames.secretHitler.core.events.EventFactory;
 
 public class Room {
-    private ArrayList<Player> players;
-    private Game game;
-    private GameRules gameRules;
+    private final ArrayList<Player> players;
+    private final Game game;
+    private final GameRules gameRules;
+    private final EventFactory eventFactory;
 
     public Room(GameRules gameRules,
             ArticlesProvider articlesProvider,
@@ -18,6 +19,7 @@ public class Room {
             MessageSender messageSender,
             EventFactory eventFactory) {
         this.gameRules = gameRules;
+        this.eventFactory = eventFactory;
         players = new ArrayList<>();
         
         game = new Game(players,
@@ -38,8 +40,7 @@ public class Room {
     }
     
     public void kickPlayer(Player player) {
-        if (player != null && players.contains(player))
-            players.remove(player);
+        players.remove(player);
     }
 
     public ArrayList<Player> getPlayers() {
