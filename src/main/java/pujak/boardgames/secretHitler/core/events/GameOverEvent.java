@@ -58,6 +58,8 @@ public class GameOverEvent implements GameEvent {
             return true;
         }
 
-        return false;
+        var players = table.getGame().getPlayers();
+        return players.stream().anyMatch(e -> e.getRole().getResponsibilityType()
+                == ResponsibilityType.SecretHitler && e.isDead());
     }
 }

@@ -1,16 +1,11 @@
 package pujak.boardgames.secretHitler.core.events;
 
 import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
-import pujak.boardgames.secretHitler.core.events.enums.GameType;
-import pujak.boardgames.secretHitler.core.models.GameResult;
 import pujak.boardgames.secretHitler.core.models.Table;
 import pujak.boardgames.secretHitler.core.services.ElectionManager;
-import pujak.boardgames.secretHitler.core.services.MessageSender;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ExecutionEvent implements GameEvent{
     private final ElectionManager electionManager;
@@ -25,6 +20,8 @@ public class ExecutionEvent implements GameEvent{
 
     @Override
     public void Execute(Delegatable delegatable) {
+        System.out.println("From Execution event");
+
         if (isFirstExecutionDone)
             isSecondExecutionDone = true;
         else
@@ -40,10 +37,12 @@ public class ExecutionEvent implements GameEvent{
             if (presidentId.equals(candidate.getId()) || candidate.isDead())
                 continue;
 
-            candidatesMap.put(candidate.getId(), candidate.getName());
+            candidatesMap.put(candidate.getId(), "Name: " + candidate.getName() + " IsDead: " + candidate.isDead());
         }
 
-        var chosenCandidate = electionManager.getChosenCandidate(presidentId, candidatesMap);
+        System.out.println();
+
+        var chosenCandidate = electionManager.getChosenVariant(presidentId, candidatesMap);
 
         table.getGame().killPlayer(chosenCandidate);
     }
@@ -57,6 +56,5 @@ public class ExecutionEvent implements GameEvent{
             return true;
 
         return fascistActiveArticles == 5 && !isSecondExecutionDone;
-
     }
 }

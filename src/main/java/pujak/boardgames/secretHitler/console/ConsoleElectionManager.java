@@ -22,26 +22,31 @@ public class ConsoleElectionManager implements ElectionManager {
     public ArrayList<String> getVotes(List<Player> voters, ArrayList<String> variants, String message) {
         var res = new ArrayList<String>();
 
-        var in = new Scanner(System.in);
-        for (var voter: voters){
-            System.out.println(voter.getId() + " " + voter.getName() + " idDead: " + voter.isDead());
-            while(true){
-                for (var variant: variants){
-                    System.out.print(variant + " ");
-                }
-                System.out.println();
-                var des = in.nextLine();
-                if (variants.contains(des)){
-                    res.add(des);
-                    break;
-                }
-            }
+//        var in = new Scanner(System.in);
+//        for (var voter: voters){
+//            System.out.println(voter.getId() + " " + voter.getName() + " idDead: " + voter.isDead());
+//            while(true){
+//                for (var variant: variants){
+//                    System.out.print(variant + " ");
+//                }
+//                System.out.println();
+//                var des = in.nextLine();
+//                if (variants.contains(des)){
+//                    res.add(des);
+//                    break;
+//                }
+//            }
+//        }
+
+        for (var i = 0; i < 5; i++) {
+            res.add("Ja");
         }
+
         return  res;
     }
 
     @Override
-    public UUID getChosenCandidate(UUID receiverId, Map<UUID, String> data) {
+    public UUID getChosenVariant(UUID receiverId, Map<UUID, String> data) {
         var res = UUID.randomUUID();
 
         var in = new Scanner(System.in);

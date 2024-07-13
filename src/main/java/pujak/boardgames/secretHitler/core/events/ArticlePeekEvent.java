@@ -19,13 +19,15 @@ public class ArticlePeekEvent implements GameEvent{
     }
     @Override
     public void Execute(Delegatable delegatable) {
+        System.out.println("From Article Peek event");
+
         isExecuted = true;
         var message = new StringBuilder();
 
-        message.append("Here you can see three card from top of draw pile: \n");
+        message.append(" Here you can see three card from top of draw pile: \n");
         for (var i = 0; i < 3; i++) {
             var article = table.getDrawPile().get(i);
-            message.append("Index: ").append(i).append(" Type: ").append(article.getType()).append("\n");
+            message.append("Article #").append(i).append(" is ").append(article.getType()).append("\n");
         }
         message.append("end. \n");
 
@@ -37,15 +39,15 @@ public class ArticlePeekEvent implements GameEvent{
 
     @Override
     public boolean isConditionsMatched(Table table) {
+        this.table = table;
         if (isExecuted)
             return false;
 
-        var playersCount = table.getGame().getPlayers().size();
+        var gameType = table.getGame().getGameType();
 
-        if (playersCount == 5 || playersCount == 6){
-            return table.getFascistActiveArticles().size() == 3;
+        if (gameType == GameType.Small){
+            return table.getFascistActiveArticles().size() == 1;
         }
-
         return false;
     }
 }

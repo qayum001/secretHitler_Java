@@ -26,6 +26,8 @@ public class SpecialElectionEvent implements GameEvent {
 
     @Override
     public void Execute(Delegatable delegatable) {
+        System.out.println("From Special Elections event");
+
         var candidatesToBePresident = new ArrayList<Player>();
         var currentPresident = table.getPresident();
         var game = table.getGame();
@@ -35,11 +37,11 @@ public class SpecialElectionEvent implements GameEvent {
         candidatesToBePresident.remove(currentPresident);
         var candidatesPull = game.getElectionPull(candidatesToBePresident);
 
-        var chosenPresidentId = electionManager.getChosenCandidate(currentPresident.getId(), candidatesPull);
+        var chosenPresidentId = electionManager.getChosenVariant(currentPresident.getId(), candidatesPull);
 
         var candidates = game.generateCandidatePull(currentPresident, table.getPreviousChancellor(), activePlayers);
         var electionData = game.getElectionPull(candidates);
-        var chosenChancellorId = electionManager.getChosenCandidate(chosenPresidentId, electionData);
+        var chosenChancellorId = electionManager.getChosenVariant(chosenPresidentId, electionData);
 
         var variants = new ArrayList<>(Arrays.asList("Ja", "Nien"));
         var votingResults = electionManager.getVotes(activePlayers, variants, "Vote for Chancellor");//add here candidate name
@@ -89,3 +91,4 @@ public class SpecialElectionEvent implements GameEvent {
         return fascistsActiveArticlesCount == 3;
     }
 }
+

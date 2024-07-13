@@ -26,7 +26,6 @@ public class Game implements Delegatable {
     private GameResult gameResult;
 
     public Game(ArrayList<Player> players,
-            MessageSender messageSender,
             ElectionManager electionManager,
             ArticlesProvider articlesProvider,
             EventFactory eventFactory) {
@@ -38,21 +37,18 @@ public class Game implements Delegatable {
         this.players = players;
     }
     
-    public void Start(GameRules gameRules) {
+    public GameResult Start(GameRules gameRules) {
         if (!isPlayersCountCorrect(players, gameRules))
             throw new RuntimeException(
                     String.format("Players count not correct, you need minimum %2d players, and less then %2d",
                             gameRules.minPlayersToStart(), gameRules.maxPlayersToStart()));
 
         setGameType(players.size());
-        table.fillDrawPile(gameRules);
+        table.setGameRules(gameRules);
+        table.fillDrawPile();
 
         while (!isGameOver) {
             //stage start
-
-            var availableEvents = table.getExecutableEvents();
-            for (GameEvent gameEvent : availableEvents)
-                gameEvent.Execute(this);
 
             table.setPresident(players);
 
@@ -60,7 +56,7 @@ public class Game implements Delegatable {
             var candidates = generateCandidatePull(table.getPresident(), table.getPreviousChancellor(), getActivePlayers(players));
             var electionData = getElectionPull(candidates);
 
-            var candidateId = electionManager.getChosenCandidate(table.getPresident().getId(), electionData);
+            var candidateId = electionManager.getChosenVariant(table.getPresident().getId(), electionData);
 
             //start Chancellor election
             var variants = new ArrayList<>(Arrays.asList("Ja", "Nien"));
@@ -75,30 +71,64 @@ public class Game implements Delegatable {
             table.setChancellor(getChancellor);
 
             var sendingArticles = table.getTopTreeArticles();
-            var presidentDiscardArticle = articlesProvider.getDiscardArticle(sendingArticles,
+            var presidentDiscardArticleId = articlesProvider.getDiscardArticle(sendingArticles,
                     "Choose article to discard", table.getPresident().getId());
 
-            var discartingArticle = sendingArticles.stream().filter(e -> e.getId().equals(presidentDiscardArticle))
-                    .findFirst().get();
-            table.discardArticle(discartingArticle);
+            discardArticle(presidentDiscardArticleId, sendingArticles);
 
-            //send here message to President that his next message will be sent to other players, and he must write what cards he got
+            if (table.isVetoPowerAvailable()){
+                var vetoPowerId = UUID.randomUUID();
+                var chancellorDiscardArticle = articlesProvider.getDiscardArticleWithAvailableVetoPower(sendingArticles,
+                        "Choose article to discard or veto to discard two articles", table.getChancellor().getId(), vetoPowerId);
 
-            sendingArticles.remove(discartingArticle);
+                if (chancellorDiscardArticle.equals(vetoPowerId)){
+                    if (isPresidentAgreed()){
+                        while (!sendingArticles.isEmpty())
+                            discardArticle(sendingArticles.getFirst().getId(), sendingArticles);
+                    }else {
+                        var chancellorNewDiscardArticleId = articlesProvider.getDiscardArticle(sendingArticles,
+                                "Choose article to discard or veto to discard two articles", table.getChancellor().getId());
+                        discardArticle(chancellorNewDiscardArticleId, sendingArticles);
+                    }
+                } else { discardArticle(chancellorDiscardArticle, sendingArticles); }
+            } else {
+                var chancellorDiscardArticleId = articlesProvider.getDiscardArticle(sendingArticles,
+                        "Choose article to discard", table.getChancellor().getId());
 
-            var chancellorDiscardArticle = articlesProvider.getDiscardArticle(sendingArticles,
-                    "Choose article to discard", table.getChancellor().getId());
+                discardArticle(chancellorDiscardArticleId, sendingArticles);
+            }
 
-            discartingArticle = sendingArticles.stream().filter(e -> e.getId().equals(chancellorDiscardArticle))
-                    .findFirst().get();
-            table.discardArticle(discartingArticle);
-
-            //add left article to actives
-            //add veto logic
-            table.addArticleToActives(sendingArticles.getFirst());
+            if (!sendingArticles.isEmpty())
+                table.addArticleToActives(sendingArticles.getFirst());
 
             table.setPreviousChancellor(table.getChancellor());
+
+            var availableEvents = table.getExecutableEvents();
+            for (GameEvent gameEvent : availableEvents)
+                gameEvent.Execute(this);
         }
+
+        return this.gameResult;
+    }
+
+    private boolean isPresidentAgreed(){
+        var yesId = UUID.randomUUID();
+        var noId = UUID.randomUUID();
+
+        var agreements = new HashMap<UUID, String>();
+        agreements.put(yesId, "Yes");
+        agreements.put(noId, "No");
+
+        var agreement = electionManager.getChosenVariant(table.getPresident().getId(), agreements);
+
+        return agreement.equals(yesId);
+    }
+
+    private void discardArticle(UUID discardingArticleId, ArrayList<Article> articles){
+        var discartingArticle = articles.stream().filter(e -> e.getId().equals(discardingArticleId))
+                .findFirst().get();
+        table.discardArticle(discartingArticle);
+        articles.remove(discartingArticle);
     }
 
     private void setGameType(int playersCount){
@@ -173,14 +203,10 @@ public class Game implements Delegatable {
         player.setDead(true);
     }
 
-    private void endGame() {
-        this.isGameOver = true;
-    }
-
     @Override
     public void Execute(GameResult gameResult) {
         this.gameResult = gameResult;
-        endGame();
+        this.isGameOver = true;
     }
 
     public GameType getGameType(){

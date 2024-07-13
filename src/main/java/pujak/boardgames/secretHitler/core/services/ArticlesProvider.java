@@ -10,4 +10,5 @@ import pujak.boardgames.secretHitler.core.models.Article;
 
 public interface ArticlesProvider {
     UUID getDiscardArticle(List<Article> articles, String message, UUID receiverId);
+    UUID getDiscardArticleWithAvailableVetoPower(List<Article> articles, String message, UUID receiverId, UUID vetoVariant);
 }

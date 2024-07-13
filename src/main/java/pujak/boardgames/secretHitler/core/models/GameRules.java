@@ -7,5 +7,6 @@ public record GameRules(int minPlayersToStart,
         int fascistsCount,
         int liberalsCount,
         int liberalWinArticlesCount,
-        int fascistWinArticlesCount) {}
+        int fascistWinArticlesCount,
+        int vetoPowerActivatingCount) {}
 

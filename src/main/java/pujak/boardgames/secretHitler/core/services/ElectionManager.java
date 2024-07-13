@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.google.common.primitives.UnsignedInteger;
-import com.google.common.primitives.UnsignedLong;
-
 import pujak.boardgames.secretHitler.core.models.Player;
 
 public interface ElectionManager {
@@ -15,5 +12,5 @@ public interface ElectionManager {
 
     ArrayList<String> getVotes(List<Player> voters, ArrayList<String> variants, String message);
 
-    UUID getChosenCandidate(UUID receiverId, Map<UUID, String> data);
+    UUID getChosenVariant(UUID receiverId, Map<UUID, String> data);
 }

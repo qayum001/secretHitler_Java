@@ -25,6 +25,8 @@ public class LoyaltyInvestigationEvent implements GameEvent {
 
     @Override
     public void Execute(Delegatable delegatable) {
+        System.out.println("From Loyalty Investigation event");
+
          if (isFirstExecuted)
              isSecondExecuted = true;
          else
@@ -35,12 +37,12 @@ public class LoyaltyInvestigationEvent implements GameEvent {
         playersInvestigationPull.remove(currentPresident);
 
         var investigationData = table.getGame().getElectionPull((ArrayList<Player>) playersInvestigationPull);
-        var playerToInvestigateId = electionManager.getChosenCandidate(currentPresident.getId(), investigationData);
+        var playerToInvestigateId = electionManager.getChosenVariant(currentPresident.getId(), investigationData);
         var playerToInvestigate = playersInvestigationPull.stream().filter(e -> e.getId().equals(playerToInvestigateId))
                 .findFirst().get();
 
         var message = "Player: " + playerToInvestigate.getId() + " Party Membership: " + playerToInvestigate.getRole().getParty();
-
+        System.out.println();
         messageSender.sendMessage(currentPresident.getId(), message);
     }
 
@@ -54,7 +56,7 @@ public class LoyaltyInvestigationEvent implements GameEvent {
         var gameType = table.getGame().getGameType();
 
         if (gameType == GameType.Small)
-            return false;
+            return fascistsArticlesCount == 1 && !isFirstExecuted;;
         if (gameType == GameType.Usual)
             return  fascistsArticlesCount == 2 && !isFirstExecuted;
         if (gameType == GameType.Big){

@@ -27,4 +27,19 @@ public class ConsoleArticleProvider implements ArticlesProvider {
 
         return UUID.fromString(input);
     }
+
+    @Override
+    public UUID getDiscardArticleWithAvailableVetoPower(List<Article> articles, String message, UUID receiverId, UUID vetoVariant) {
+        System.out.println("Message: " + message + " To: " + receiverId);
+
+        for (var article: articles){
+            System.out.println("Id: " + article.getId() + " Type: " + article.getType());
+        }
+        System.out.println("Id: " + vetoVariant + " Suggest Veto");
+
+        var in = new Scanner(System.in);
+        var input = in.nextLine();
+
+        return UUID.fromString(input);
+    }
 }

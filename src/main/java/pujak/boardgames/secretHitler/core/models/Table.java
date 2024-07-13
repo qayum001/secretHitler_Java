@@ -12,6 +12,7 @@ import pujak.boardgames.secretHitler.core.models.enums.ArticleType;
 public class Table {
     private GameRules gameRules;
 
+    public void setGameRules(GameRules gameRules) {this.gameRules = gameRules; }
     public GameRules getGameRules() {
         return gameRules;
     }
@@ -21,18 +22,7 @@ public class Table {
         return drawPile;
     }
 
-    public void setDrawPile(ArrayList<Article> drawPile) {
-        this.drawPile = drawPile;
-    }
-
-    private ArrayList<Article> discardPile;
-    public ArrayList<Article> getDiscardPile() {
-        return discardPile;
-    }
-
-    public void setDiscardPile(ArrayList<Article> discardPile) {
-        this.discardPile = discardPile;
-    }
+    private final ArrayList<Article> discardPile;
 
     private final ArrayList<Article> fascistActiveArticles;
     public ArrayList<Article> getFascistActiveArticles() {
@@ -48,7 +38,6 @@ public class Table {
     public Player getPresident() {
         return president;
     }
-
 
     private Player chancellor;
     public Player getChancellor() {
@@ -70,19 +59,8 @@ public class Table {
     }
 
     private Player previousPresident;
-    public Player getPreviousPresident() {
-        return previousPresident;
-    }
-
-    public void setPreviousPresident(Player previousPresident) {
-        this.previousPresident = previousPresident;
-    }
 
     private final EventFactory eventFactory;
-
-    public EventFactory getEventFactory() {
-        return this.eventFactory;
-    }
 
     private int electionTracker;
 
@@ -96,9 +74,7 @@ public class Table {
 
     private final Game game;
 
-    public Game getGame() {
-        return game;
-    }
+    public Game getGame() { return game; }
 
     public Table(Game game, EventFactory eventFactory) {
         this.game = game;
@@ -127,16 +103,24 @@ public class Table {
     }
     
     public ArrayList<Article> getTopTreeArticles() {
-        return getFirstArticles(3, drawPile);
+        if (drawPile.size() < 3){
+            var liberalArticles = discardPile.stream().filter(e -> e.getType() == ArticleType.Blue).toList();
+            var fascistArticles = discardPile.stream().filter(e -> e.getType() == ArticleType.Red).toList();
+            var newDraw = (ArrayList<Article>) shuffleTwoLists(liberalArticles, fascistArticles);
+            drawPile.addAll(newDraw);
+            discardPile.clear();
+        }
+
+        return getFirstArticles(drawPile);
     }
 
-    private static ArrayList<Article> getFirstArticles(int count, ArrayList<Article> fromList){
-        var example = (ArrayList<Article>)fromList.stream().takeWhile(e -> fromList.indexOf(e) < count).collect(Collectors.toList());
+    private static ArrayList<Article> getFirstArticles(ArrayList<Article> fromList){
+        var example = (ArrayList<Article>)fromList.stream().takeWhile(e -> fromList.indexOf(e) < 3).collect(Collectors.toList());
         fromList.removeAll(example);
         return example;
     }
 
-    public void fillDrawPile(GameRules gameRules){
+    public void fillDrawPile(){
         var libArticles = new ArrayList<Article>();
         var fascistArticles = new ArrayList<Article>();
 
@@ -146,6 +130,10 @@ public class Table {
             libArticles.add(new Article(ArticleType.Blue));
 
         drawPile = (ArrayList<Article>) shuffleTwoLists(libArticles, fascistArticles);
+    }
+
+    public boolean isVetoPowerAvailable(){
+        return fascistActiveArticles.size() == gameRules.vetoPowerActivatingCount();
     }
 
     private static <T> List<T> shuffleTwoLists(List<T> firstList, List<T> secondList){
