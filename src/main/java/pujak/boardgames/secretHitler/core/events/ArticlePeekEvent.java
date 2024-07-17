@@ -1,13 +1,9 @@
 package pujak.boardgames.secretHitler.core.events;
 
-import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
+import pujak.boardgames.secretHitler.core.Interfaces.Delegate;
 import pujak.boardgames.secretHitler.core.events.enums.GameType;
-import pujak.boardgames.secretHitler.core.models.Article;
 import pujak.boardgames.secretHitler.core.models.Table;
 import pujak.boardgames.secretHitler.core.services.MessageSender;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ArticlePeekEvent implements GameEvent{
     private final MessageSender messageSender;
@@ -18,7 +14,7 @@ public class ArticlePeekEvent implements GameEvent{
         this.messageSender = messageSender;
     }
     @Override
-    public void Execute(Delegatable delegatable) {
+    public void Execute(Delegate delegatable) {
         System.out.println("From Article Peek event");
 
         isExecuted = true;
@@ -39,14 +35,14 @@ public class ArticlePeekEvent implements GameEvent{
 
     @Override
     public boolean isConditionsMatched(Table table) {
-        this.table = table;
-        if (isExecuted)
+        if (isExecuted || table.getGame().isGameOver())
             return false;
 
+        this.table = table;
         var gameType = table.getGame().getGameType();
 
         if (gameType == GameType.Small){
-            return table.getFascistActiveArticles().size() == 1;
+            return table.getFascistActiveArticles().size() == 3;
         }
         return false;
     }

@@ -23,23 +23,21 @@ public class SecretHitlerApplication {
 				10,
 				11,
 				6,
-				2,
-				3,
 				5,
 				6,
-				1);
+				5,
+				3);
 
 		var articleProvider = new ConsoleArticleProvider();
 		var electionManager = new ConsoleElectionManager();
 		var messageSender = new ConsoleMessageSender();
 		var eventFactory = new EventFactory();
 
-		eventFactory.register(new StageEndEvent(messageSender));
+		//eventFactory.register(new StageEndEvent(messageSender));
 		//eventFactory.register(new ExecutionEvent(electionManager));
 		//eventFactory.register(new ArticlePeekEvent(messageSender));
 		//eventFactory.register(new LoyaltyInvestigationEvent(electionManager, messageSender));
-		//eventFactory.register(new SpecialElectionEvent(electionManager, articleProvider));
-		//eventFactory.register(new GameOverEvent(messageSender));
+		eventFactory.register(new SpecialElectionEvent(electionManager, articleProvider));;
 
 		var liberalRole = new Role(ResponsibilityType.Liberal, Party.Liberal);
 		var fascistRole = new Role(ResponsibilityType.Fascist, Party.Fascist);
@@ -54,7 +52,7 @@ public class SecretHitlerApplication {
 		var player6 = new Player(fascistRole, "Fascist_2");
 		var player7 = new Player(hitlerRole, "Hitler_1");
 
-		var room = new Room(gameRules, articleProvider, electionManager, eventFactory);
+		var room = new Room(gameRules, articleProvider, messageSender, electionManager, eventFactory);
 
 		room.addPlayer(player1);
 		room.addPlayer(player2);
@@ -65,6 +63,6 @@ public class SecretHitlerApplication {
 		room.addPlayer(player7);
 
 		var gameResult = room.start();
-		System.out.println(gameResult.getWinnerParty());
+		System.out.println(gameResult.getWinnerParty() + "\n" + gameResult.getWinners().stream().map(Player::getName).toList());
 	}
 }

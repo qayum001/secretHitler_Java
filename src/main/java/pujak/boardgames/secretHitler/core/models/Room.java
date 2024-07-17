@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import pujak.boardgames.secretHitler.core.services.ArticlesProvider;
 import pujak.boardgames.secretHitler.core.services.ElectionManager;
 import pujak.boardgames.secretHitler.core.events.EventFactory;
+import pujak.boardgames.secretHitler.core.services.MessageSender;
 
 public class Room {
     private final ArrayList<Player> players;
@@ -13,6 +14,7 @@ public class Room {
 
     public Room(GameRules gameRules,
             ArticlesProvider articlesProvider,
+            MessageSender messageSender,
             ElectionManager electionManager,
             EventFactory eventFactory) {
         this.gameRules = gameRules;
@@ -20,6 +22,7 @@ public class Room {
         
         game = new Game(players,
             electionManager,
+            messageSender,
             articlesProvider,
             eventFactory);        
     }

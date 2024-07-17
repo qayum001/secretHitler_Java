@@ -3,8 +3,7 @@ package pujak.boardgames.secretHitler.core.events;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
-import pujak.boardgames.secretHitler.core.events.enums.GameType;
+import pujak.boardgames.secretHitler.core.Interfaces.Delegate;
 import pujak.boardgames.secretHitler.core.models.GameResult;
 import pujak.boardgames.secretHitler.core.models.Player;
 import pujak.boardgames.secretHitler.core.models.Table;
@@ -23,7 +22,8 @@ public class GameOverEvent implements GameEvent {
     }
 
     @Override
-    public void Execute(Delegatable delegatable) {
+    public void Execute(Delegate delegate) {
+        System.out.println("Game over event executed");
         var winners = new ArrayList<Player>();
 
         for (Player player : table.getGame().getPlayers()) {
@@ -34,7 +34,7 @@ public class GameOverEvent implements GameEvent {
 
         //TODO: send message to players about game over;
 
-        delegatable.Execute(new GameResult(winners, table.getGame().getPlayers(), winnerParty, UUID.randomUUID()));
+        delegate.Execute(new GameResult(winners, table.getGame().getPlayers(), winnerParty, UUID.randomUUID()));
     }
 
     @Override
@@ -59,7 +59,11 @@ public class GameOverEvent implements GameEvent {
         }
 
         var players = table.getGame().getPlayers();
-        return players.stream().anyMatch(e -> e.getRole().getResponsibilityType()
-                == ResponsibilityType.SecretHitler && e.isDead());
+        if (players.stream().anyMatch(e -> e.getRole().getResponsibilityType()
+                == ResponsibilityType.SecretHitler && e.isDead())){
+            winnerParty = Party.Liberal;
+        }
+
+        return false;
     }
 }

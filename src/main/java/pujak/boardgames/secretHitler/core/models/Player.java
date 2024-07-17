@@ -11,7 +11,7 @@ public class Player {
     public Role getRole() {
         return role;
     }
-    private String name;
+    private final String name;
     public String getName() {
         return name;
     }

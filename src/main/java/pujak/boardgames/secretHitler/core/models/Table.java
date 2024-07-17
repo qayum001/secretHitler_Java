@@ -10,72 +10,40 @@ import pujak.boardgames.secretHitler.core.events.GameEvent;
 import pujak.boardgames.secretHitler.core.models.enums.ArticleType;
 
 public class Table {
-    private GameRules gameRules;
-
-    public void setGameRules(GameRules gameRules) {this.gameRules = gameRules; }
-    public GameRules getGameRules() {
-        return gameRules;
-    }
-
-    private ArrayList<Article> drawPile;
-    public ArrayList<Article> getDrawPile() {
-        return drawPile;
-    }
-
+    // <editor-fold desc="Fields">
+    private int electionTracker;
+    private final Game game;
+    private final EventFactory eventFactory;
     private final ArrayList<Article> discardPile;
-
     private final ArrayList<Article> fascistActiveArticles;
-    public ArrayList<Article> getFascistActiveArticles() {
-        return fascistActiveArticles;
-    }
-
     private final ArrayList<Article> liberalActiveArticles;
-    public ArrayList<Article> getLiberalActiveArticles() {
-        return liberalActiveArticles;
-    }
-
     private Player president;
-    public Player getPresident() {
-        return president;
-    }
-
     private Player chancellor;
-    public Player getChancellor() {
-        return chancellor;
-    }
-
+    private Player previousChancellor;
+    private Player previousPresident;
+    private GameRules gameRules;
+    private ArrayList<Article> drawPile;
+    // </editor-fold>
+    // <editor-fold desc="Getters and Setters">
+    public void setGameRules(GameRules gameRules) {this.gameRules = gameRules; }
     public void setChancellor(Player newChancellor) {
         this.previousChancellor = this.chancellor;
         this.chancellor = newChancellor;
     }
+    public void setPreviousChancellor(Player previousChancellor) { this.previousChancellor = previousChancellor; }
+    public void setElectionTracker(int electionTracker) { this.electionTracker = electionTracker; }
+    public void setPreviousPresident (Player player) { this.previousPresident = player; }
 
-    private Player previousChancellor;
-    public Player getPreviousChancellor() {
-        return previousChancellor;
-    }
-
-    public void setPreviousChancellor(Player previousChancellor) {
-        this.previousChancellor = previousChancellor;
-    }
-
-    private Player previousPresident;
-
-    private final EventFactory eventFactory;
-
-    private int electionTracker;
-
-    public int getElectionTracker() {
-        return electionTracker;
-    }
-
-    public void setElectionTracker(int electionTracker) {
-        this.electionTracker = electionTracker;
-    }
-
-    private final Game game;
-
+    public GameRules getGameRules() { return gameRules; }
+    public ArrayList<Article> getDrawPile() { return drawPile; }
+    public ArrayList<Article> getFascistActiveArticles() { return fascistActiveArticles; }
+    public ArrayList<Article> getLiberalActiveArticles() { return liberalActiveArticles; }
+    public Player getPresident() { return president; }
+    public Player getChancellor() { return chancellor; }
+    public Player getPreviousChancellor() { return previousChancellor; }
+    public int getElectionTracker() { return electionTracker; }
     public Game getGame() { return game; }
-
+    // </editor-fold>
     public Table(Game game, EventFactory eventFactory) {
         this.game = game;
         this.fascistActiveArticles = new ArrayList<>();
@@ -102,8 +70,8 @@ public class Table {
         president = players.get(newPresidentIndex);
     }
     
-    public ArrayList<Article> getTopTreeArticles() {
-        if (drawPile.size() < 3){
+    public ArrayList<Article> getTopArticlesByCount(int gettingArticlesCount) {
+        if (drawPile.size() < gettingArticlesCount){
             var liberalArticles = discardPile.stream().filter(e -> e.getType() == ArticleType.Blue).toList();
             var fascistArticles = discardPile.stream().filter(e -> e.getType() == ArticleType.Red).toList();
             var newDraw = (ArrayList<Article>) shuffleTwoLists(liberalArticles, fascistArticles);
@@ -111,11 +79,11 @@ public class Table {
             discardPile.clear();
         }
 
-        return getFirstArticles(drawPile);
+        return getFirstArticles(drawPile, gettingArticlesCount);
     }
 
-    private static ArrayList<Article> getFirstArticles(ArrayList<Article> fromList){
-        var example = (ArrayList<Article>)fromList.stream().takeWhile(e -> fromList.indexOf(e) < 3).collect(Collectors.toList());
+    private static ArrayList<Article> getFirstArticles(ArrayList<Article> fromList, int gettingArticlesCount){
+        var example = (ArrayList<Article>)fromList.stream().takeWhile(e -> fromList.indexOf(e) < gettingArticlesCount).collect(Collectors.toList());
         fromList.removeAll(example);
         return example;
     }
@@ -161,6 +129,7 @@ public class Table {
 
     public void addArticleToActives(Article article) {
         electionTracker = 0;
+        article.setPlacedStage(game.getStageCounter());
         switch (article.getType()) {
             case ArticleType.Blue:
                 liberalActiveArticles.add(article);
@@ -174,7 +143,6 @@ public class Table {
     }
 
     public String getTableInfo() {
-
         return String.format("""
                         ===================================================\s
                         Table:\s

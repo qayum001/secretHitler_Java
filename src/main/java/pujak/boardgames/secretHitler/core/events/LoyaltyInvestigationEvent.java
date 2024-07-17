@@ -1,6 +1,6 @@
 package pujak.boardgames.secretHitler.core.events;
 
-import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
+import pujak.boardgames.secretHitler.core.Interfaces.Delegate;
 import pujak.boardgames.secretHitler.core.events.enums.GameType;
 import pujak.boardgames.secretHitler.core.models.Player;
 import pujak.boardgames.secretHitler.core.models.Table;
@@ -24,7 +24,7 @@ public class LoyaltyInvestigationEvent implements GameEvent {
     }
 
     @Override
-    public void Execute(Delegatable delegatable) {
+    public void Execute(Delegate delegatable) {
         System.out.println("From Loyalty Investigation event");
 
          if (isFirstExecuted)
@@ -39,7 +39,7 @@ public class LoyaltyInvestigationEvent implements GameEvent {
         var investigationData = table.getGame().getElectionPull((ArrayList<Player>) playersInvestigationPull);
         var playerToInvestigateId = electionManager.getChosenVariant(currentPresident.getId(), investigationData);
         var playerToInvestigate = playersInvestigationPull.stream().filter(e -> e.getId().equals(playerToInvestigateId))
-                .findFirst().get();
+                .findFirst().orElseThrow();
 
         var message = "Player: " + playerToInvestigate.getId() + " Party Membership: " + playerToInvestigate.getRole().getParty();
         System.out.println();
@@ -48,7 +48,7 @@ public class LoyaltyInvestigationEvent implements GameEvent {
 
     @Override
     public boolean isConditionsMatched(Table table) {
-        if (isFirstExecuted && isSecondExecuted)
+        if (isFirstExecuted && isSecondExecuted || table.getGame().isGameOver())
             return false;
 
         this.table = table;
@@ -56,7 +56,7 @@ public class LoyaltyInvestigationEvent implements GameEvent {
         var gameType = table.getGame().getGameType();
 
         if (gameType == GameType.Small)
-            return fascistsArticlesCount == 1 && !isFirstExecuted;;
+            return false;
         if (gameType == GameType.Usual)
             return  fascistsArticlesCount == 2 && !isFirstExecuted;
         if (gameType == GameType.Big){

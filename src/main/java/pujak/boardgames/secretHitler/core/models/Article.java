@@ -7,6 +7,7 @@ import java.util.UUID;
 public class Article {
     private final ArticleType type;
     private final UUID id;
+    private int placedStage;
 
     public UUID getId() {
         return id;
@@ -14,6 +15,14 @@ public class Article {
 
     public ArticleType getType() {
         return type;
+    }
+
+    public void setPlacedStage(int placedStage) {
+        this.placedStage = placedStage;
+    }
+
+    public int getPlacedStage(){
+        return this.placedStage;
     }
 
     public Article(ArticleType type) {

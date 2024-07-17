@@ -15,10 +15,6 @@ public class ConsoleMessageSender implements MessageSender {
 
     @Override
     public void sendMessageToMany(List<UUID> receiverIds, String message) {
-//        System.out.println("To:");
-//        for (var item: receiverIds){
-//            System.out.println(item.toString());
-//        }
         System.out.println("Message to many");
         System.out.println("This message: \n " + message);
     }

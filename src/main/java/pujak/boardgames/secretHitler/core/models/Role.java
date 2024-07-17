@@ -5,13 +5,13 @@ import pujak.boardgames.secretHitler.core.models.enums.ResponsibilityType;
 
 public class Role {
 
-    private ResponsibilityType responsibilityType;
+    private final ResponsibilityType responsibilityType;
 
     public ResponsibilityType getResponsibilityType() {
         return responsibilityType;
     }
 
-    private Party party;
+    private final Party party;
 
     public Party getParty() {
         return party;

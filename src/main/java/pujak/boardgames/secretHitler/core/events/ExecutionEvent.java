@@ -1,6 +1,6 @@
 package pujak.boardgames.secretHitler.core.events;
 
-import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
+import pujak.boardgames.secretHitler.core.Interfaces.Delegate;
 import pujak.boardgames.secretHitler.core.models.Table;
 import pujak.boardgames.secretHitler.core.services.ElectionManager;
 
@@ -19,7 +19,7 @@ public class ExecutionEvent implements GameEvent{
     }
 
     @Override
-    public void Execute(Delegatable delegatable) {
+    public void Execute(Delegate delegatable) {
         System.out.println("From Execution event");
 
         if (isFirstExecutionDone)
@@ -49,6 +49,9 @@ public class ExecutionEvent implements GameEvent{
 
     @Override
     public boolean isConditionsMatched(Table table) {
+        if (table.getGame().isGameOver())
+            return false;
+
         this.table = table;
         var fascistActiveArticles = table.getFascistActiveArticles().size();
 

@@ -1,7 +1,8 @@
 package pujak.boardgames.secretHitler.core.events;
 
-import pujak.boardgames.secretHitler.core.Interfaces.Delegatable;
+import pujak.boardgames.secretHitler.core.Interfaces.Delegate;
 import pujak.boardgames.secretHitler.core.events.enums.GameType;
+import pujak.boardgames.secretHitler.core.models.Game;
 import pujak.boardgames.secretHitler.core.models.Player;
 import pujak.boardgames.secretHitler.core.models.Table;
 import pujak.boardgames.secretHitler.core.services.ArticlesProvider;
@@ -9,13 +10,14 @@ import pujak.boardgames.secretHitler.core.services.ElectionManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class SpecialElectionEvent implements GameEvent {
     private Table table;
 
     private final ElectionManager electionManager;
     private final ArticlesProvider articlesProvider;
-
+    private Game game;
     private GameType gameType;
     private boolean isExecuted;
 
@@ -25,66 +27,93 @@ public class SpecialElectionEvent implements GameEvent {
     }
 
     @Override
-    public void Execute(Delegatable delegatable) {
+    public void Execute(Delegate delegate) {
+
+        game.incrementStageCounter();
+
         System.out.println("From Special Elections event");
 
-        var candidatesToBePresident = new ArrayList<Player>();
         var currentPresident = table.getPresident();
-        var game = table.getGame();
         var activePlayers = game.getActivePlayers(table.getGame().getPlayers());
-
-        candidatesToBePresident = (ArrayList<Player>) activePlayers;
-        candidatesToBePresident.remove(currentPresident);
-        var candidatesPull = game.getElectionPull(candidatesToBePresident);
-
-        var chosenPresidentId = electionManager.getChosenVariant(currentPresident.getId(), candidatesPull);
+        var chosenPresidentId = getChosenPresidentId((ArrayList<Player>) activePlayers, currentPresident, game);
 
         var candidates = game.generateCandidatePull(currentPresident, table.getPreviousChancellor(), activePlayers);
+        var newPresident = activePlayers.stream().filter(e -> e.getId().equals(chosenPresidentId)).findFirst().orElseThrow();
+        candidates.remove(newPresident);
+
         var electionData = game.getElectionPull(candidates);
         var chosenChancellorId = electionManager.getChosenVariant(chosenPresidentId, electionData);
 
         var variants = new ArrayList<>(Arrays.asList("Ja", "Nien"));
         var votingResults = electionManager.getVotes(activePlayers, variants, "Vote for Chancellor");//add here candidate name
 
-        if (game.isElectionSucceed(votingResults)) {
-            //table.setElectionTracker(table.getElectionTracker() + 1);
+        if (!game.isElectionSucceed(votingResults)) {
+            table.setElectionTracker(table.getElectionTracker() + 1);
+            game.checkElectionTracker();
             return;
         }
 
+        var chosenChancellor = activePlayers.stream().filter(e -> e.getId().equals(chosenChancellorId)).findFirst().orElseThrow();
+        table.setChancellor(chosenChancellor);
+
+        if (game.isGameOver()){
+            System.out.println("Game over triggered in Special elections event");
+            return;
+        }
+
+
         //articles part
-        var sendingArticles = table.getTopTreeArticles();
+        var sendingArticles = table.getTopArticlesByCount(3);
         var presidentDiscardArticle = articlesProvider.getDiscardArticle(sendingArticles,
                 "Choose article to discard", chosenPresidentId);
 
-        var discartingArticle = sendingArticles.stream().filter(e -> e.getId().equals(presidentDiscardArticle))
-                .findFirst().get();
-        table.discardArticle(discartingArticle);
+        game.discardArticle(presidentDiscardArticle, sendingArticles);
 
-        //send here message to President that his next message will be sent to other players, and he must write what cards he got
+        if (table.isVetoPowerAvailable()){
+            var vetoPowerId = UUID.randomUUID();
+            var chancellorDiscardArticle = articlesProvider.getDiscardArticleWithAvailableVetoPower(sendingArticles,
+                    "Choose article to discard or veto to discard two articles", chosenChancellorId, vetoPowerId);
 
-        sendingArticles.remove(discartingArticle);
+            if (chancellorDiscardArticle.equals(vetoPowerId)){
+                if (game.isPresidentAgreed()){
+                    while (!sendingArticles.isEmpty())
+                        game.discardArticle(sendingArticles.getFirst().getId(), sendingArticles);
+                }else {
+                    var chancellorNewDiscardArticleId = articlesProvider.getDiscardArticle(sendingArticles,
+                            "Choose article to discard or veto to discard two articles", chosenChancellorId);
+                    game.discardArticle(chancellorNewDiscardArticleId, sendingArticles);
+                }
+            } else { game.discardArticle(chancellorDiscardArticle, sendingArticles); }
+        } else {
+            var chancellorDiscardArticleId = articlesProvider.getDiscardArticle(sendingArticles,
+                    "Choose article to discard", chosenChancellorId);
 
-        var chancellorDiscardArticle = articlesProvider.getDiscardArticle(sendingArticles,
-                "Choose article to discard", chosenChancellorId);
+            game.discardArticle(chancellorDiscardArticleId, sendingArticles);
+        }
 
-        discartingArticle = sendingArticles.stream().filter(e -> e.getId().equals(chancellorDiscardArticle))
-                .findFirst().get();
-        table.discardArticle(discartingArticle);
+        if (!sendingArticles.isEmpty())
+            table.addArticleToActives(sendingArticles.getFirst());
 
-        //add left article to actives
-        //add veto logic
-        table.addArticleToActives(sendingArticles.getFirst());
+        table.setPreviousChancellor(table.getChancellor());
+    }
 
-        var newPreviousChancellor = activePlayers.stream().filter(e -> e.getId().equals(chosenChancellorId))
-                .findFirst().get();
-        table.setPreviousChancellor(newPreviousChancellor);
+    private UUID getChosenPresidentId (ArrayList<Player> activePlayers, Player currentPresident, Game game){
+        var candidatesToBePresident = new ArrayList<Player>();
+
+        candidatesToBePresident = activePlayers;
+        candidatesToBePresident.remove(currentPresident);
+        var candidatesPull = game.getElectionPull(candidatesToBePresident);
+
+        return  electionManager.getChosenVariant(currentPresident.getId(), candidatesPull);
     }
 
     @Override
     public boolean isConditionsMatched(Table table) {
-        if (isExecuted || gameType == GameType.Small)
+        if (isExecuted || gameType == GameType.Small || table.getGame().isGameOver())
             return false;
+
         this.table = table;
+        this.game = table.getGame();
 
         var fascistsActiveArticlesCount = table.getFascistActiveArticles().size();
 
