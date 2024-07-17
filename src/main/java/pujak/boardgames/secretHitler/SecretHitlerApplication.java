@@ -1,5 +1,10 @@
 package pujak.boardgames.secretHitler;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import pujak.boardgames.secretHitler.console.ConsoleArticleProvider;
 import pujak.boardgames.secretHitler.console.ConsoleElectionManager;
 import pujak.boardgames.secretHitler.console.ConsoleMessageSender;
@@ -10,13 +15,16 @@ import pujak.boardgames.secretHitler.core.models.Role;
 import pujak.boardgames.secretHitler.core.models.Room;
 import pujak.boardgames.secretHitler.core.models.enums.Party;
 import pujak.boardgames.secretHitler.core.models.enums.ResponsibilityType;
+import pujak.boardgames.secretHitler.telegramBot.SecretHitlerBot;
+import pujak.boardgames.secretHitler.telegramBot.interfaces.implementations.services.MessageConsumerImpl;
 
-//@SpringBootApplication
+@SpringBootApplication
 public class SecretHitlerApplication {
 
-	public static void main(String[] args) {
-		//SpringApplication.run(SecretHitlerApplication.class, args);
-
+	public static void main(String[] args) throws TelegramApiException {
+		SpringApplication.run(SecretHitlerApplication.class, args);
+		/*
+SpringApplication.run(SecretHitlerApplication.class, args);
 		System.out.println("Start here");
 
 		var gameRules = new GameRules(5,
@@ -64,5 +72,7 @@ public class SecretHitlerApplication {
 
 		var gameResult = room.start();
 		System.out.println(gameResult.getWinnerParty() + "\n" + gameResult.getWinners().stream().map(Player::getName).toList());
-	}
+*/
+
+    }
 }
