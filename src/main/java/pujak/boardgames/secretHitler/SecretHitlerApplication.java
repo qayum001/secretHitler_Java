@@ -2,21 +2,7 @@ package pujak.boardgames.secretHitler;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import pujak.boardgames.secretHitler.console.ConsoleArticleProvider;
-import pujak.boardgames.secretHitler.console.ConsoleElectionManager;
-import pujak.boardgames.secretHitler.console.ConsoleMessageSender;
-import pujak.boardgames.secretHitler.core.events.*;
-import pujak.boardgames.secretHitler.core.models.GameRules;
-import pujak.boardgames.secretHitler.core.models.Player;
-import pujak.boardgames.secretHitler.core.models.Role;
-import pujak.boardgames.secretHitler.core.models.Room;
-import pujak.boardgames.secretHitler.core.models.enums.Party;
-import pujak.boardgames.secretHitler.core.models.enums.ResponsibilityType;
-import pujak.boardgames.secretHitler.telegramBot.SecretHitlerBot;
-import pujak.boardgames.secretHitler.telegramBot.interfaces.implementations.services.MessageConsumerImpl;
 
 @SpringBootApplication
 public class SecretHitlerApplication {

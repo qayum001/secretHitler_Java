@@ -1,8 +1,9 @@
 package pujak.boardgames.secretHitler.telegramBot.interfaces.services;
 
 import org.telegram.telegrambots.meta.api.objects.Message;
+import pujak.boardgames.secretHitler.telegramBot.dto.CommandContent;
 
 public interface BotHelper {
     String gatCommandFromMessage(Message message);
-    String getCommandFormText(String text);
+    CommandContent getCommandFromText(String text);
 }
