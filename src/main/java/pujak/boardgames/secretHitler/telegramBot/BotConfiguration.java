@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import pujak.boardgames.secretHitler.telegramBot.implementations.Command.StartCommand;
 import pujak.boardgames.secretHitler.telegramBot.interfaces.Command;
 import pujak.boardgames.secretHitler.telegramBot.interfaces.CommandFactory;
 import pujak.boardgames.secretHitler.telegramBot.implementations.Command.EchoCommand;
@@ -42,6 +43,13 @@ public class BotConfiguration {
     //</editor-fold>
 
     //<editor-fold desc="Commands">
+    @Bean
+    public Command addStartCommand(CommandFactory commandFactory){
+        var command = new StartCommand();
+        commandFactory.registerCommand(command);
+        return command;
+    }
+
     @Bean
     public Command addEchoCommand(CommandFactory commandFactory, BotMessageSender messageSender){
         var command = new EchoCommand(messageSender);
