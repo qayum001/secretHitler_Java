@@ -1,7 +1,7 @@
 package pujak.boardgames.secretHitler.telegramBot.implementations;
 
 import org.springframework.stereotype.Component;
-import pujak.boardgames.secretHitler.telegramBot.interfaces.Command;
+import pujak.boardgames.secretHitler.telegramBot.interfaces.BotCommand;
 import pujak.boardgames.secretHitler.telegramBot.interfaces.CommandFactory;
 
 import java.util.ArrayList;
@@ -9,16 +9,16 @@ import java.util.ArrayList;
 @Component
 public class CommandFactoryImpl implements CommandFactory {
 
-    private final ArrayList<Command> commands;
+    private final ArrayList<BotCommand> botCommands;
 
     public CommandFactoryImpl(){
-        commands = new ArrayList<>();
+        botCommands = new ArrayList<>();
     }
 
     @Override
-    public Command getCommand(String command) {
+    public BotCommand getCommand(String command) {
         System.out.println(command);
-        for (var item: commands){
+        for (var item: botCommands){
             if (command.equals(item.getCommand())){
                 return item;
             }
@@ -27,7 +27,7 @@ public class CommandFactoryImpl implements CommandFactory {
     }
 
     @Override
-    public void registerCommand(Command command) {
-        commands.add(command);
+    public void registerCommand(BotCommand botCommand) {
+        botCommands.add(botCommand);
     }
 }

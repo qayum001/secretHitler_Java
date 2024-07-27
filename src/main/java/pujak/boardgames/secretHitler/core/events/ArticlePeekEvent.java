@@ -27,7 +27,7 @@ public class ArticlePeekEvent implements GameEvent{
         }
         message.append("end. \n");
 
-        var presidentId = table.getPresident().getId();
+        var presidentId = table.getPresident().getTelegramId();
         messageSender.sendMessage(presidentId, message.toString());
 
         isExecuted = true;

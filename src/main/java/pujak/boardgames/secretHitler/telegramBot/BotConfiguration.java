@@ -5,17 +5,23 @@ import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import pujak.boardgames.secretHitler.telegramBot.implementations.Command.StartCommand;
-import pujak.boardgames.secretHitler.telegramBot.interfaces.Command;
+import pujak.boardgames.secretHitler.core.services.ArticlesProvider;
+import pujak.boardgames.secretHitler.core.services.ElectionManager;
+import pujak.boardgames.secretHitler.core.services.MessageSender;
+import pujak.boardgames.secretHitler.telegramBot.implementations.Command.StartBotCommand;
+import pujak.boardgames.secretHitler.telegramBot.callbackManagement.CallbackHandler;
+import pujak.boardgames.secretHitler.telegramBot.implementations.services.GameStorage;
+import pujak.boardgames.secretHitler.telegramBot.implementations.services.core.BotArticleProvider;
+import pujak.boardgames.secretHitler.telegramBot.implementations.services.core.BotElectionManager;
+import pujak.boardgames.secretHitler.telegramBot.implementations.services.core.BotMessageSender;
+import pujak.boardgames.secretHitler.telegramBot.interfaces.BotCommand;
 import pujak.boardgames.secretHitler.telegramBot.interfaces.CommandFactory;
-import pujak.boardgames.secretHitler.telegramBot.implementations.Command.EchoCommand;
+import pujak.boardgames.secretHitler.telegramBot.implementations.Command.EchoBotCommand;
 import pujak.boardgames.secretHitler.telegramBot.implementations.CommandFactoryImpl;
-import pujak.boardgames.secretHitler.telegramBot.implementations.services.BotMessageSenderImpl;
 import pujak.boardgames.secretHitler.telegramBot.implementations.services.HelperImpl;
-import pujak.boardgames.secretHitler.telegramBot.implementations.services.MessageConsumerImpl;
+import pujak.boardgames.secretHitler.telegramBot.implementations.services.UpdateConsumerImpl;
 import pujak.boardgames.secretHitler.telegramBot.interfaces.services.BotHelper;
-import pujak.boardgames.secretHitler.telegramBot.interfaces.services.BotMessageSender;
-import pujak.boardgames.secretHitler.telegramBot.interfaces.services.MessageConsumer;
+import pujak.boardgames.secretHitler.telegramBot.interfaces.services.UpdateConsumer;
 
 @Configuration
 public class BotConfiguration {
@@ -32,27 +38,40 @@ public class BotConfiguration {
     }
 
     @Bean
-    public MessageConsumer messageConsumer(BotHelper helper, CommandFactory commandFactory){
-        return new MessageConsumerImpl(helper, commandFactory);
+    public UpdateConsumer messageConsumer(BotHelper helper, CommandFactory commandFactory, CallbackHandler callbackHandler){
+        return new UpdateConsumerImpl(helper, commandFactory, callbackHandler);
     }
 
     @Bean
-    public BotMessageSender messageSender(SecretHitlerBot secretHitlerBot){
-        return new BotMessageSenderImpl(secretHitlerBot);
+    public MessageSender messageSender(){
+        return new BotMessageSender();
     }
+
+    @Bean
+    public ArticlesProvider articlesProvider(){
+        return new BotArticleProvider();
+    }
+
+    @Bean
+    public ElectionManager electionManager(){
+        return new BotElectionManager();
+    }
+
+    @Bean
+    public GameStorage gameStorage() { return new GameStorage(); }
     //</editor-fold>
 
     //<editor-fold desc="Commands">
     @Bean
-    public Command addStartCommand(CommandFactory commandFactory){
-        var command = new StartCommand();
+    public BotCommand addStartCommand(CommandFactory commandFactory){
+        var command = new StartBotCommand();
         commandFactory.registerCommand(command);
         return command;
     }
 
     @Bean
-    public Command addEchoCommand(CommandFactory commandFactory, BotMessageSender messageSender){
-        var command = new EchoCommand(messageSender);
+    public BotCommand addEchoCommand(CommandFactory commandFactory){
+        var command = new EchoBotCommand();
         commandFactory.registerCommand(command);
 
         return  command;
@@ -61,7 +80,7 @@ public class BotConfiguration {
 
     // <editor-fold desc="Bot">
     @Bean
-    public SecretHitlerBot secretHitlerBot(MessageConsumer messageConsumer){
+    public SecretHitlerBot secretHitlerBot(UpdateConsumer messageConsumer){
         return new SecretHitlerBot(messageConsumer);
     }
 

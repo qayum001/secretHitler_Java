@@ -8,10 +8,6 @@ import java.util.List;
 @Table(name = "player")
 public class PlayerModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "player_id")
-    private long id;
-
     @Column(name = "telegramID", nullable = false, unique = true)
     private long telegramId;
 
@@ -32,11 +28,7 @@ public class PlayerModel {
     public PlayerModel() {}
 
     public long getId(){
-        return this.id;
-    }
-
-    public long getTelegramId(){
-        return telegramId;
+        return this.telegramId;
     }
 
     public String getName(){

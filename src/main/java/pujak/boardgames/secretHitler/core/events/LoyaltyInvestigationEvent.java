@@ -24,7 +24,7 @@ public class LoyaltyInvestigationEvent implements GameEvent {
     }
 
     @Override
-    public void Execute(Delegate delegatable) {
+    public void Execute(Delegate delegate) {
         System.out.println("From Loyalty Investigation event");
 
          if (isFirstExecuted)
@@ -37,13 +37,13 @@ public class LoyaltyInvestigationEvent implements GameEvent {
         playersInvestigationPull.remove(currentPresident);
 
         var investigationData = table.getGame().getElectionPull((ArrayList<Player>) playersInvestigationPull);
-        var playerToInvestigateId = electionManager.getChosenVariant(currentPresident.getId(), investigationData);
-        var playerToInvestigate = playersInvestigationPull.stream().filter(e -> e.getId().equals(playerToInvestigateId))
+        var playerToInvestigateId = electionManager.getChosenVariant(currentPresident.getTelegramId(), investigationData);
+        var playerToInvestigate = playersInvestigationPull.stream().filter(e -> e.getTelegramId() == playerToInvestigateId)
                 .findFirst().orElseThrow();
 
-        var message = "Player: " + playerToInvestigate.getId() + " Party Membership: " + playerToInvestigate.getRole().getParty();
+        var message = "Player: " + playerToInvestigate.getTelegramId() + " Party Membership: " + playerToInvestigate.getRole().getParty();
         System.out.println();
-        messageSender.sendMessage(currentPresident.getId(), message);
+        messageSender.sendMessage(currentPresident.getTelegramId(), message);
     }
 
     @Override

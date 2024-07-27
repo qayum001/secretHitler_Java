@@ -28,16 +28,16 @@ public class ExecutionEvent implements GameEvent{
             isFirstExecutionDone = true;
 
         var players = table.getGame().getPlayers();
-        var presidentId = table.getPresident().getId();
+        var presidentId = table.getPresident().getTelegramId();
 
-        var candidates = players.stream().filter(e -> !e.getId().equals(presidentId)).toList();
-        var candidatesMap = new HashMap<UUID, String>();
+        var candidates = players.stream().filter(e -> e.getTelegramId() != presidentId).toList();
+        var candidatesMap = new HashMap<Long, String>();
 
         for (var candidate: candidates){
-            if (presidentId.equals(candidate.getId()) || candidate.isDead())
+            if (presidentId == candidate.getTelegramId() || candidate.isDead())
                 continue;
 
-            candidatesMap.put(candidate.getId(), "Name: " + candidate.getName() + " IsDead: " + candidate.isDead());
+            candidatesMap.put(candidate.getTelegramId(), "Name: " + candidate.getName() + " IsDead: " + candidate.isDead());
         }
 
         System.out.println();
