@@ -24,7 +24,6 @@ public class Game implements Delegate {
     private final ArrayList<Player> players;
     private boolean isGameOver;
     private GameType gameType;
-    private GameResult gameResult;
     private int stageCounter;
 
     private Party winnerParty;
@@ -52,6 +51,10 @@ public class Game implements Delegate {
         this.players = players;
     }
 
+    public void commandStart(){
+
+    }
+
     public GameResult Start(GameRules gameRules) {
         if (!isPlayersCountCorrect(players, gameRules))
             throw new RuntimeException(
@@ -75,8 +78,7 @@ public class Game implements Delegate {
                 isGameOver = isGameOver();
                 if (isGameOver) { break; }
             }
-            var ids = players.stream().map(Player::getId).toList();
-            messageSender.sendMessageToMany(ids, table.getTableInfo());
+            messageSender.sendMessageToMany(players, table.getTableInfo());
             incrementStageCounter();
         }
 
@@ -106,16 +108,16 @@ public class Game implements Delegate {
     }
 
     public boolean isPresidentAgreed(){
-        var yesId = UUID.randomUUID();
-        var noId = UUID.randomUUID();
+        var yesId = (long)1;
+        var noId = (long)0;
 
-        var agreements = new HashMap<UUID, String>();
+        var agreements = new HashMap<Long, String>();
         agreements.put(yesId, "Yes");
         agreements.put(noId, "No");
 
-        var agreement = electionManager.getChosenVariant(table.getPresident().getId(), agreements);
+        var agreement = electionManager.getChosenVariant(table.getPresident().getTelegramId(), agreements);
 
-        return agreement.equals(yesId);
+        return Objects.equals(agreement, yesId);
     }
 
     public boolean isElectionSucceed(ArrayList<String> votingResults) {
@@ -141,7 +143,7 @@ public class Game implements Delegate {
         var resArr = new ArrayList<Player>();
 
         for (var item : players) {
-            if (item.isDead() || item.getId().equals(president.getId()))
+            if (item.isDead() || item.getTelegramId() == president.getTelegramId())
                 continue;
             resArr.add(item);
         }
@@ -151,24 +153,23 @@ public class Game implements Delegate {
         return resArr;
     }
 
-    public Map<UUID, String> getElectionPull(ArrayList<Player> candidates) {
-        var res = new HashMap<UUID, String>();
+    public Map<Long, String> getElectionPull(ArrayList<Player> candidates) {
+        var res = new HashMap<Long, String>();
 
         for (Player player : candidates) {
-            res.put(player.getId(), player.getName() + " isDead: " + player.isDead());
+            res.put(player.getTelegramId(), player.getName() + " isDead: " + player.isDead());
         }
 
         return res;
     }
 
-    public void killPlayer(UUID playerId){
-        var player = players.stream().filter(e -> e.getId().equals(playerId)).findFirst();
+    public void killPlayer(long playerId){
+        var player = players.stream().filter(e -> e.getTelegramId() == playerId).findFirst();
         player.ifPresent(value -> value.setDead(true));
     }
 
     @Override
     public void Execute(GameResult gameResult) {
-        this.gameResult = gameResult;
         this.isGameOver = true;
     }
 
@@ -177,9 +178,8 @@ public class Game implements Delegate {
 
         if (tracker == table.getGameRules().electionTrackerMax()){
             var article = table.getTopArticlesByCount(1).getFirst();
-            var ids = players.stream().map(Player::getId).toList();
 
-            messageSender.sendMessageToMany(ids, "Article to enact: " + article.getType());
+            messageSender.sendMessageToMany(players, "Article to enact: " + article.getType());
             table.addArticleToActives(article);
             table.setPreviousChancellor(null);
         }

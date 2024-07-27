@@ -25,7 +25,7 @@ public class StageEndEvent implements GameEvent {
         table.setPreviousPresident(table.getPresident());
 
         var message = table.getTableInfo();
-        messageSender.sendMessageToMany(game.getPlayers().stream().map(Player::getId).collect(Collectors.toList()), message);
+        messageSender.sendMessageToMany(game.getPlayers(), message);
     }
 
     @Override

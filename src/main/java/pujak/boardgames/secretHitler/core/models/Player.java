@@ -1,33 +1,28 @@
 package pujak.boardgames.secretHitler.core.models;
 
-import com.google.common.primitives.UnsignedInteger;
-
-import java.util.UUID;
-
 public class Player {
-    private long telegramId;
+    private final long telegramId;
     public long getTelegramId(){ return this.telegramId; }
-    private final UUID id;
-    public UUID getId() { return  id; }
-    private final Role role;
+
+    private Role role;
     public Role getRole() { return role; }
+    public void serRole(Role role) { this.role = role; }
+
     private final String name;
     public String getName() { return name; }
+
     private boolean isDead;
     public boolean isDead() { return isDead; }
 
-    public void setDead(boolean isDead) { this.isDead = isDead; }
-    
-    public Player(Role role, String name) {
-        this.role = role;
-        this.name = name;
-        this.id = UUID.randomUUID();
-    }
+    private boolean isInRoom;
+    public boolean isInRoom() { return isInRoom; }
+    public void setInRoom(boolean status) { this.isInRoom = status; }
 
-    public Player(long telegramId, Role role, String name){
-        id = UUID.randomUUID();
-        this.role = role;
+    public void setDead(boolean isDead) { this.isDead = isDead; }
+
+    public Player(long telegramId, String name){
         this.name = name;
         this.telegramId = telegramId;
     }
+
 }

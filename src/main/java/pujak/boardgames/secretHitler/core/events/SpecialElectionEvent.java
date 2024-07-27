@@ -38,7 +38,7 @@ public class SpecialElectionEvent implements GameEvent {
         var chosenPresidentId = getChosenPresidentId((ArrayList<Player>) activePlayers, currentPresident, game);
 
         var candidates = game.generateCandidatePull(currentPresident, table.getPreviousChancellor(), activePlayers);
-        var newPresident = activePlayers.stream().filter(e -> e.getId().equals(chosenPresidentId)).findFirst().orElseThrow();
+        var newPresident = activePlayers.stream().filter(e -> e.getTelegramId() == chosenPresidentId).findFirst().orElseThrow();
         candidates.remove(newPresident);
 
         var electionData = game.getElectionPull(candidates);
@@ -53,7 +53,7 @@ public class SpecialElectionEvent implements GameEvent {
             return;
         }
 
-        var chosenChancellor = activePlayers.stream().filter(e -> e.getId().equals(chosenChancellorId)).findFirst().orElseThrow();
+        var chosenChancellor = activePlayers.stream().filter(e -> e.getTelegramId() == chosenChancellorId).findFirst().orElseThrow();
         table.setChancellor(chosenChancellor);
 
         if (game.isGameOver()){
@@ -97,14 +97,14 @@ public class SpecialElectionEvent implements GameEvent {
         table.setPreviousChancellor(table.getChancellor());
     }
 
-    private UUID getChosenPresidentId (ArrayList<Player> activePlayers, Player currentPresident, Game game){
+    private long getChosenPresidentId (ArrayList<Player> activePlayers, Player currentPresident, Game game){
         var candidatesToBePresident = new ArrayList<Player>();
 
         candidatesToBePresident = activePlayers;
         candidatesToBePresident.remove(currentPresident);
         var candidatesPull = game.getElectionPull(candidatesToBePresident);
 
-        return  electionManager.getChosenVariant(currentPresident.getId(), candidatesPull);
+        return  electionManager.getChosenVariant(currentPresident.getTelegramId(), candidatesPull);
     }
 
     @Override

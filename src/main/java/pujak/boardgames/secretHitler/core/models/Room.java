@@ -11,29 +11,65 @@ public class Room {
     private final ArrayList<Player> players;
     private final Game game;
     private final GameRules gameRules;
+    private final long hostId;
+    private boolean isGameStarted;
 
     public Room(GameRules gameRules,
             ArticlesProvider articlesProvider,
             MessageSender messageSender,
             ElectionManager electionManager,
-            EventFactory eventFactory) {
+            EventFactory eventFactory,
+            long hostId) {
+
         this.gameRules = gameRules;
+        this.hostId = hostId;
         players = new ArrayList<>();
         
         game = new Game(players,
             electionManager,
             messageSender,
             articlesProvider,
-            eventFactory);        
+            eventFactory);
+    }
+
+    public boolean isStartAvailable(){
+        var count = players.size();
+        return count >= gameRules.minPlayersToStart() && count <= gameRules.maxPlayersToStart();
     }
 
     public GameResult start() {
-        System.out.println("room started");
+        isGameStarted = true;
         return game.Start(gameRules);
     }
 
+    public Game getGame(){
+        return this.game;
+    }
+
+    public boolean isPlayerInThisRoom(Player player){
+        return players.contains(player);
+    }
+
+    public boolean isPlayerInThisRoom(Long id){
+        return players.stream().anyMatch(e -> e.getTelegramId() == id);
+    }
+
     public void addPlayer(Player player) {
-        if (player != null) 
+        if (player != null && !isGameStarted) {
+            player.setInRoom(true);
             players.add(player);
+        }
+    }
+
+    public ArrayList<Player> getPlayers(){
+        return this.players;
+    }
+
+    public void kickPlayer(Long id){
+        players.removeIf(e -> e.getTelegramId() == id);
+    }
+
+    public long getHostId() {
+        return hostId;
     }
 }

@@ -12,12 +12,6 @@ import static java.lang.System.*;
 
 public class ConsoleElectionManager implements ElectionManager {
 
-
-    @Override
-    public boolean isElectionSucceed(int receiverId, Map<UUID, String> data) {
-        return false;
-    }
-
     @Override
     public ArrayList<String> getVotes(List<Player> voters, ArrayList<String> variants, String message) {
         var res = new ArrayList<String>();
@@ -46,9 +40,7 @@ public class ConsoleElectionManager implements ElectionManager {
     }
 
     @Override
-    public UUID getChosenVariant(UUID receiverId, Map<UUID, String> data) {
-        var res = UUID.randomUUID();
-
+    public Long getChosenVariant(long receiverId, Map<Long, String> data) {
         var in = new Scanner(System.in);
         var keys = data.keySet();
         while(true){
@@ -56,12 +48,9 @@ public class ConsoleElectionManager implements ElectionManager {
                 System.out.println(key + " " + data.get(key));
             }
 
-            var input = in.nextLine();
-            if (data.containsKey(UUID.fromString(input))){
-                res = UUID.fromString(input);
-                break;
-            }
+            var input = in.nextLong();
+            if (data.containsKey(input))
+                return input;
         }
-        return res;
     }
 }

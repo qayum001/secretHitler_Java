@@ -1,7 +1,7 @@
 package pujak.boardgames.secretHitler.telegramBot.interfaces;
 
 public interface CommandFactory {
-    Command getCommand(String command);
-    void registerCommand(Command command);
+    BotCommand getCommand(String command);
+    void registerCommand(BotCommand botCommand);
 
 }

@@ -27,11 +27,9 @@ public class ElectionStage implements Stage {
 
         table.setPresident((ArrayList<Player>) activePlayers);
 
-        System.out.println("President: " + table.getPresident().getName());
-
         var candidates = game.generateCandidatePull(table.getPresident(), table.getPreviousChancellor(), activePlayers);
         var electionData = game.getElectionPull(candidates);
-        var chosenCandidateId = electionManager.getChosenVariant(table.getPresident().getId(), electionData);
+        var chosenCandidateId = electionManager.getChosenVariant(table.getPresident().getTelegramId(), electionData);
 
         var variants = new ArrayList<>(Arrays.asList("Ja", "Nien"));
         var votingResults = electionManager.getVotes(activePlayers, variants, "Vote for Chancellor");//add here candidate name
@@ -40,6 +38,6 @@ public class ElectionStage implements Stage {
             table.setElectionTracker(table.getElectionTracker() + 1);
             game.checkElectionTracker();
         }
-        activePlayers.stream().filter(e -> e.getId().equals(chosenCandidateId)).findFirst().ifPresent(table::setChancellor);
+        activePlayers.stream().filter(e -> e.getTelegramId() == chosenCandidateId).findFirst().ifPresent(table::setChancellor);
     }
 }

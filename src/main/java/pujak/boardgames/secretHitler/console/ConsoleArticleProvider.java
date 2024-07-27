@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedLong;
 
+import jakarta.persistence.Convert;
 import pujak.boardgames.secretHitler.core.services.ArticlesProvider;
 import pujak.boardgames.secretHitler.core.models.Article;
 
@@ -15,7 +16,7 @@ public class ConsoleArticleProvider implements ArticlesProvider {
 
 
     @Override
-    public UUID getDiscardArticle(List<Article> articles, String message, UUID receiverId) {
+    public UUID getDiscardArticle(List<Article> articles, String message, long receiverId) {
         System.out.println("Message: " + message + " To: " + receiverId);
 
         for (var article: articles){
@@ -23,13 +24,12 @@ public class ConsoleArticleProvider implements ArticlesProvider {
         }
 
         var in = new Scanner(System.in);
-        var input = in.nextLine();
 
-        return UUID.fromString(input);
+        return UUID.fromString(in.nextLine());
     }
 
     @Override
-    public UUID getDiscardArticleWithAvailableVetoPower(List<Article> articles, String message, UUID receiverId, UUID vetoVariant) {
+    public UUID getDiscardArticleWithAvailableVetoPower(List<Article> articles, String message, long receiverId, UUID vetoVariant) {
         System.out.println("Message: " + message + " To: " + receiverId);
 
         for (var article: articles){
@@ -38,8 +38,6 @@ public class ConsoleArticleProvider implements ArticlesProvider {
         System.out.println("Id: " + vetoVariant + " Suggest Veto");
 
         var in = new Scanner(System.in);
-        var input = in.nextLine();
-
-        return UUID.fromString(input);
+        return UUID.fromString(in.nextLine());
     }
 }

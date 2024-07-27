@@ -1,21 +1,22 @@
 package pujak.boardgames.secretHitler.telegramBot.implementations.Command;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import pujak.boardgames.secretHitler.core.services.MessageSender;
 import pujak.boardgames.secretHitler.persistence.dbModels.PlayerModel;
 import pujak.boardgames.secretHitler.persistence.respositories.PlayerRepository;
 import pujak.boardgames.secretHitler.telegramBot.dto.CommandContent;
-import pujak.boardgames.secretHitler.telegramBot.interfaces.Command;
-import pujak.boardgames.secretHitler.telegramBot.interfaces.services.BotMessageSender;
+import pujak.boardgames.secretHitler.telegramBot.interfaces.BotCommand;
 
 @Component
-public class StartCommand implements Command {
+public class StartBotCommand implements BotCommand {
 
     @Autowired
     private PlayerRepository playerRepository;
     @Autowired
-    private BotMessageSender messageSender;
+    private MessageSender messageSender;
 
     @Override
     public String getCommand() {
